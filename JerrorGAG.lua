@@ -25,7 +25,7 @@ main.Size = UDim2.new(0, 260, 0, 360)
 main.Position = UDim2.new(1, -270, 0.2, 0)
 main.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 main.BorderSizePixel = 0
-main.Active = true
+main.Active = false
 main.Draggable = true
 main.Parent = gui
 
