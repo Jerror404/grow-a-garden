@@ -25,7 +25,7 @@ main.Size = UDim2.new(0, 260, 0, 360)
 main.Position = UDim2.new(1, -270, 0.2, 0)
 main.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 main.BorderSizePixel = 0
-main.Active = false
+main.Active = true
 main.Draggable = true
 main.Parent = gui
 
@@ -84,12 +84,54 @@ local promptsEnabled = true
 local lastInteraction = tick()
 
 local function togglePrompts(model, state)
-    for _, obj in ipairs(model:GetDescendants()) do
-        if obj:IsA("ProximityPrompt") then
-            obj.Enabled = state
+    local base = model:FindFirstChild("Base")
+    if base then
+        local prompt = base:FindFirstChildOfClass("ProximityPrompt")
+        if prompt then
+            prompt.Enabled = state
         end
     end
 end
+
+local function addButton(model)
+    if modelButtons[model] then return end
+
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 28)
+    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.Font = Enum.Font.SourceSans
+    btn.TextSize = 14
+    btn.Text = "☑ " .. model.Name
+    btn.Parent = list
+
+    local isEnabled = promptsEnabled
+    togglePrompts(model, isEnabled)
+
+    btn.MouseButton1Click:Connect(function()
+        isEnabled = not isEnabled
+        modelButtons[model].enabled = isEnabled
+        btn.Text = (isEnabled and "☑ " or "☐ ") .. model.Name
+        togglePrompts(model, isEnabled)
+        lastInteraction = tick()
+    end)
+
+    modelButtons[model] = {
+        button = btn,
+        enabled = isEnabled
+    }
+end
+
+
+
+
+
+
+
+
+
+
+
 
 local function addButton(model)
     if modelButtons[model] then return end
@@ -134,9 +176,8 @@ local function refreshButtons()
     end
 
     table.sort(children, function(a, b)
-        return a.Name:lower() < b.Name:lower())
-    end
-end
+        return a.Name:lower() < b.Name:lower()
+    end)
 
     for _, model in ipairs(children) do
         if searchBar.Text == "" or model.Name:lower():find(searchBar.Text:lower()) then
